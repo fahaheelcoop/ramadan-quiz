@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>تسجيل المسابقة</title>
+
+  <style>
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: Arial, sans-serif;
+    min-height: 100vh;
+    margin: 0;
+    padding: 24px;
+    background:
+      radial-gradient(circle at top, rgba(255,255,255,0.06), transparent 40%),
+      linear-gradient(180deg, #2b235a 0%, #1b2b4a 100%);
+  }
+
+ body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(circle at 85% 15%, rgba(0,0,0,0.04), transparent 30%),
+    radial-gradient(circle at 15% 85%, rgba(0,0,0,0.03), transparent 35%);
+  pointer-events: none;
+}
+
+
+  .card {
+    max-width: 520px;
+    margin: auto;
+    background: #fff;
+    padding: 26px 24px 28px;
+    border-radius: 18px;
+    box-shadow: 0 10px 28px rgba(0,0,0,0.08);
+  }
+
+  /* ===== HEADER ===== */
+  .header {
+    text-align: center;
+    margin-bottom: 26px;
+    position: relative;
+  }
+
+  .logo {
+  width: 90px;
+  margin-bottom: 8px;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,.15));
+}
+
+  .titleMain {
+    font-size: 20px;
+    font-weight: bold;
+    color: #1f1f1f;
+    margin-bottom: 6px;
+  }
+
+  .titleSub {
+    font-size: 16px;
+    color: #555;
+    margin-bottom: 4px;
+  }
+
+  .titleYear {
+    font-size: 14px;
+    color: #777;
+  }
+
+  .divider {
+  width: 60px;
+  height: 2px;
+  margin: 12px auto 0;
+  border-radius: 10px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    #d6b15e,
+    transparent
+  );
+}
+
+
+  /* ===== FORM ===== */
+  label {
+  display: block;
+  margin-top: 14px;
+  margin-bottom: 6px;
+  font-weight: bold;
+  font-size: 14px;   /* 👈 الكود الجديد */
+  color: #333;       /* 👈 الكود الجديد */
+}
+
+input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  font-size: 15px;
+  outline: none;
+  background: #fafafa;  /* 👈 الكود الجديد */
+}
+
+
+  input:focus {
+    border-color: #6c63ff;
+    box-shadow: 0 0 0 3px rgba(108,99,255,.12);
+  }
+
+  button {
+  margin-top: 22px;
+  width: 100%;
+  padding: 14px;
+  font-size: 16px;
+  font-weight: bold;
+  background: #6c63ff;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+
+  transition: all .25s ease;   /* 👈 الكود الجديد */
+}
+
+button:hover:not(:disabled) {
+  background: #5a54e6;         /* 👈 الكود الجديد */
+  transform: translateY(-1px); /* 👈 الكود الجديد */
+  box-shadow: 0 6px 14px rgba(0,0,0,.15); /* 👈 الكود الجديد */
+}
+
+button:disabled {
+  opacity: .65;
+  cursor: not-allowed;
+}
+
+
+  .msg {
+    margin-top: 14px;
+    padding: 12px;
+    border-radius: 12px;
+    display: none;
+    text-align: center;
+    font-weight: bold;
+  }
+
+  .ok { background: #e8fff0; color: #0f6b2f; }
+  .bad { background: #ffecec; color: #8a1f1f; }
+
+  /* 🌙 Ramadan Decoration */
+.ramadan-decor {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.ramadan-decor::before,
+.ramadan-decor::after {
+  content: "";
+  width: 60px;
+  height: 1px;
+  background: linear-gradient(to right, transparent, #d4af37, transparent);
+}
+
+.ramadan-icon {
+  font-size: 18px;
+  color: #d4af37;
+  opacity: 0.9;
+}
+
+
+</style>
+
+</head>
+
+<body>
+
+  <div class="card">
+<!-- 🌙 Ramadan Decoration -->
+  <div class="ramadan-decor">
+    <span class="ramadan-icon">🌙 ✨</span>
+  </div>
+    <!-- ✅ NEW HEADER -->
+    <div class="header">
+  <img src="1.png" class="logo" alt="شعار جمعية الفحيحيل التعاونية">
+
+  <div class="titleMain">جمعية الفحيحيل التعاونية</div>
+  <div class="titleSub">المسابقة الثقافية لشهر رمضان المبارك</div>
+  <div class="titleYear">1447هـ – 2026م</div>
+
+  <div class="divider"></div>
+</div>
+<form id="regForm">
+      <label>الاسم</label>
+      <input id="name" autocomplete="name" />
+
+      <label>الرقم المدني</label>
+      <input id="civil_id" inputmode="numeric" />
+
+      <label>رقم الصندوق</label>
+      <input id="box_number" inputmode="numeric" />
+
+      <label>رقم الموبايل</label>
+      <input id="phone" inputmode="numeric" maxlength="8" autocomplete="tel" />
+
+      <button id="btnSubmit" type="submit">تسجيل</button>
+    </form>
+
+    <div id="msg" class="msg"></div>
+
+    <!-- ✅ زر دخول للمسابقة (يظهر فقط للمسجلين ولم يرسلوا الإجابات) -->
+    <button id="goQuizBtn" type="button" style="display:none; margin-top:12px; background:#1f8b4c;">
+      دخول للمسابقة
+    </button>
+  </div>
+
+  <script>
+    const API_URL = "https://script.google.com/macros/s/AKfycbwhdO_Ye6WivgCQyMTgEHrvNQOuEv6RJ9qBLCy-Vrhv_6BUhiCMV_m9kv82V3nYebk/exec";
+
+    const form = document.getElementById("regForm");
+    const msg  = document.getElementById("msg");
+    const btn  = document.getElementById("btnSubmit");
+    const goBtn = document.getElementById("goQuizBtn");
+
+    const $ = (id) => document.getElementById(id);
+
+    function showMsg(ok, text){
+      msg.style.display = "block";
+      msg.className = "msg " + (ok ? "ok" : "bad");
+      msg.textContent = text;
+    }
+
+    function hideMsg(){
+      msg.style.display = "none";
+    }
+
+    function digits(v){
+      return String(v ?? "").replace(/[^\d]/g, "");
+    }
+
+    function getParam(name){
+      const u = new URL(window.location.href);
+      return (u.searchParams.get(name) || "").trim();
+    }
+
+    async function apiCall(bodyObj){
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(bodyObj)
+      });
+      return await res.json();
+    }
+
+    function showGoToQuizButton(civil_id, box_number){
+      const civ = encodeURIComponent(civil_id);
+      const box = encodeURIComponent(box_number);
+      const target = `quiz.html?civil_id=${civ}&box_number=${box}`;
+
+      goBtn.style.display = "block";
+      goBtn.textContent = "دخول للمسابقة";
+      goBtn.onclick = () => window.location.href = target;
+    }
+
+    // ===============================
+    // Auto-fill from login/quiz link
+    // ===============================
+    (function autofillFromLink(){
+      const civil = digits(getParam("civil_id"));
+      const box   = digits(getParam("box_number"));
+
+      const civilEl = $("civil_id");
+      const boxEl   = $("box_number");
+
+      if (civil && civilEl) civilEl.value = civil;
+      if (box && boxEl)     boxEl.value = box;
+
+      // ✅ لو جاي من لينك نخليهم غير قابلين للتعديل
+      if (civil && box && civilEl && boxEl) {
+        civilEl.readOnly = true;
+        boxEl.readOnly = true;
+      }
+    })();
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      hideMsg();
+      goBtn.style.display = "none";
+
+      const payload = {
+        action: "register",
+        name: ($("name").value || "").trim(),
+        civil_id: digits(($("civil_id").value || "").trim()),
+        box_number: digits(($("box_number").value || "").trim()),
+        phone: digits(($("phone").value || "").trim())
+      };
+
+      if (!payload.name || !payload.civil_id || !payload.box_number || !payload.phone) {
+        showMsg(false, "من فضلك املأ كل البيانات.");
+        return;
+      }
+
+      // ✅ تحقق رقم الموبايل 8 أرقام فقط
+      if (payload.phone.length !== 8) {
+        showMsg(false, "رقم الموبايل يجب أن يكون 8 أرقام فقط.");
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = "جارٍ التسجيل...";
+
+      try {
+        const data = await apiCall(payload);
+        console.log("API BUILD =", data.build);
+
+        // ✅ رسائل ذكية
+        if (data.ok) {
+          showMsg(true, "تم التسجيل بنجاح ✅ سيتم تحويلك تلقائيًا إلى صفحة الأسئلة خلال ثوانٍ...");
+
+          showGoToQuizButton(payload.civil_id, payload.box_number);
+
+          setTimeout(() => {
+            goBtn.click();
+          }, 2000);
+
+          return;
+        }
+
+        const map = {
+          ALREADY_REGISTERED: "تم التسجيل مسبقًا لهذا الرقم المدني ورقم الصندوق. (محاولة واحدة فقط)",
+          PHONE_EXISTS: "رقم الموبايل مسجل مسبقًا.",
+          NOT_ALLOWED: "عذرًا، الرقم المدني ورقم الصندوق غير مطابقين للسجلات. يرجى التأكد من البيانات.",
+          MISSING_FIELDS: "من فضلك املأ كل البيانات.",
+          BAD_KEYS: "تأكد من الرقم المدني ورقم الصندوق.",
+          SHEETS_NOT_FOUND: "تعذر الوصول للجداول المطلوبة.",
+          SERVER_ERROR: "حدث خطأ في السيرفر. حاول مرة أخرى."
+        };
+
+        if (data.code === "ALREADY_REGISTERED") {
+          const access = await apiCall({
+            action: "checkAccess",
+            civil_id: payload.civil_id,
+            box_number: payload.box_number
+          });
+
+          if (access.ok) {
+            showMsg(true, "أنت مسجل بالفعل ✅ يمكنك دخول المسابقة الآن.");
+            showGoToQuizButton(payload.civil_id, payload.box_number);
+          } else {
+            showMsg(false, access.message || "تم اعتماد مشاركتك سابقًا ولا يمكن الدخول مرة أخرى.");
+            goBtn.style.display = "none";
+          }
+          return;
+        }
+
+        showMsg(false, map[data.code] || data.message || "لم يتم التسجيل.");
+
+      } catch (err) {
+        showMsg(false, "حصل خطأ في الاتصال بالسيرفر");
+        console.error(err);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "تسجيل";
+      }
+    });
+  </script>
+
+</body>
+</html>
