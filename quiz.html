@@ -133,6 +133,46 @@
   const API_URL = "https://script.google.com/macros/s/AKfycbwhdO_Ye6WivgCQyMTgEHrvNQOuEv6RJ9qBLCy-Vrhv_6BUhiCMV_m9kv82V3nYebk/exec";
   const PASS_PERCENT = 70;
   const QUIZ_ID = "RAMADAN_1447_2026_V2";
+  // ✅ آخر موعد للإرسال (توقيت الكويت UTC+3)
+const DEADLINE_TS = Date.parse("2026-02-26T24:00:00+03:00"); // = 2026-02-27 00:00
+// بديل أوضح:
+// const DEADLINE_TS = Date.parse("2026-02-27T00:00:00+03:00");
+
+function isClosedNow(){
+  return Date.now() >= DEADLINE_TS;
+}
+
+function applyDeadlineUI(){
+  // نص ثابت للموعد
+  const txt = "آخر موعد لاستقبال الإجابات: 26 فبراير 2026 - 12:00 منتصف الليل";
+  const el = document.createElement("div");
+  el.className = "small";
+  el.style.marginTop = "8px";
+  el.textContent = txt;
+
+  // ضيفه تحت العنوان في gateCard و quizCard
+  const gateH1 = document.querySelector("#gateCard h1");
+  if (gateH1 && !document.getElementById("deadlineNoteGate")) {
+    el.id = "deadlineNoteGate";
+    gateH1.insertAdjacentElement("afterend", el);
+  }
+
+  const quizTop = document.querySelector("#quizCard .topbar");
+  if (quizTop && !document.getElementById("deadlineNoteQuiz")) {
+    const el2 = el.cloneNode(true);
+    el2.id = "deadlineNoteQuiz";
+    quizTop.insertAdjacentElement("afterend", el2);
+  }
+
+  // قفل الزر لو الوقت عدى
+  if (isClosedNow()){
+    const btn = $("btnSubmit");
+    btn.disabled = true;
+    btn.textContent = "انتهى وقت استقبال الإجابات";
+    showMsg($("quizMsg"), false, "عذرًا، انتهى آخر موعد لاستقبال الإجابات.");
+  }
+}
+
 
   // "صح" = a ، "خطأ" = b
   const QUESTIONS = [
@@ -485,6 +525,8 @@
       hide($("gateCard"));
       show($("quizCard"));
       renderQuestions();
+      applyDeadlineUI();
+
 
     }catch(e){
       showMsg($("gateMsg"), false, "تعذر الاتصال بالسيرفر.");
@@ -497,6 +539,11 @@
   $("btnSubmit").addEventListener("click", async () => {
     const msgEl = $("quizMsg");
     msgEl.style.display = "none";
+    if (isClosedNow()){
+  showMsg(msgEl, false, "عذرًا، انتهى آخر موعد لاستقبال الإجابات.");
+  return;
+}
+
 
     const got = collectAnswers();
     if (!got.ok){
@@ -551,3 +598,4 @@
 </script>
 </body>
 </html>
+
