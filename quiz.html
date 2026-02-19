@@ -64,29 +64,30 @@
     .opt.selected .mark{background:#6c63ff;border-color:#6c63ff;}
 
     .small{font-size:13px;color:#666;text-align:center;margin-top:10px}
-#deadlineLine{
-  display:block;
-  margin:10px 0 4px 0;
-  text-align:center;
 
-  /* أوضح + أغمق */
-  color:#111 !important;
-  font-weight:900 !important;
-  font-size:15px !important;
+    /* ✅ Deadline line واضح */
+    #deadlineLine{
+      display:block;
+      margin:10px 0 4px 0;
+      text-align:center;
 
-  /* شكل لطيف */
-  background:#fff3cd;
-  border:1px solid #f0c36d;
-  padding:10px 14px;
-  border-radius:12px;
-  box-shadow:0 4px 12px rgba(0,0,0,.06);
-}
+      color:#111 !important;
+      font-weight:900 !important;
+      font-size:15px !important;
 
-#deadlineLine .date{
-  color:#d84315;
-  font-weight:900;
-}
-
+      background:#fff3cd;
+      border:1px solid #f0c36d;
+      padding:10px 14px;
+      border-radius:12px;
+      box-shadow:0 4px 12px rgba(0,0,0,.06);
+    }
+    #deadlineLine .date{
+      display:block;
+      margin-top:6px;
+      color:#c62828;
+      font-weight:900;
+      font-size:16px;
+    }
 
     .kv{
       display:grid;grid-template-columns: 160px 1fr;gap:10px 14px;align-items:center;margin-top:14px;
@@ -119,18 +120,18 @@
 
     <div class="card hidden" id="quizCard">
       <div class="topbar">
-  <div class="pill" id="who"></div>
-  <div class="pill">نسبة النجاح: <span id="passPct">70</span>%</div>
-  <div class="pill">عدد الأسئلة: <span id="qCount">0</span></div>
-</div>
+        <div class="pill" id="who"></div>
+        <div class="pill">نسبة النجاح: <span id="passPct">70</span>%</div>
+        <div class="pill">عدد الأسئلة: <span id="qCount">0</span></div>
+      </div>
 
-<div id="deadlineLine">
-  آخر موعد لاستقبال الإجابات:
-  <span class="date">26 فبراير 2026 - 12:00 منتصف الليل</span>
-</div>
+      <div id="deadlineLine">
+        ⏳ آخر موعد لاستقبال الإجابات:
+        <span class="date">26 فبراير 2026 - 12:00 منتصف الليل</span>
+      </div>
 
-<div class="hr"></div>
-<div id="questions"></div>
+      <div class="hr"></div>
+      <div id="questions"></div>
 
       <button id="btnSubmit">إرسال الإجابات</button>
       <div class="msg" id="quizMsg"></div>
@@ -161,46 +162,31 @@
   const API_URL = "https://script.google.com/macros/s/AKfycbwhdO_Ye6WivgCQyMTgEHrvNQOuEv6RJ9qBLCy-Vrhv_6BUhiCMV_m9kv82V3nYebk/exec";
   const PASS_PERCENT = 70;
   const QUIZ_ID = "RAMADAN_1447_2026_V2";
-  // ✅ آخر موعد للإرسال (توقيت الكويت UTC+3)
-const DEADLINE_TS = Date.parse("2026-02-26T23:59:59+03:00"); // = 2026-02-27 00:00
-// بديل أوضح:
-// const DEADLINE_TS = Date.parse("2026-02-27T00:00:00+03:00");
 
-function isClosedNow(){
-  return Date.now() >= DEADLINE_TS;
-}
+  // ✅ قفل الإرسال بعد نهاية يوم 26 فبراير (توقيت الكويت +03:00)
+  // يعني بدءًا من 27 فبراير 00:00 يصبح مغلق
+  const DEADLINE_TS = Date.parse("2026-02-27T00:00:00+03:00");
 
-function applyDeadlineUI(){
-  // نص ثابت للموعد
-  const txt = "آخر موعد لاستقبال الإجابات: 26 فبراير 2026 - 12:00 منتصف الليل";
-  const el = document.createElement("div");
-  el.className = "small";
-  el.style.marginTop = "8px";
-  el.textContent = txt;
-
-  // ضيفه تحت العنوان في gateCard و quizCard
-  const gateH1 = document.querySelector("#gateCard h1");
-  if (gateH1 && !document.getElementById("deadlineNoteGate")) {
-    el.id = "deadlineNoteGate";
-    gateH1.insertAdjacentElement("afterend", el);
+  function isClosedNow(){
+    return Date.now() >= DEADLINE_TS;
   }
 
-  const quizTop = document.querySelector("#quizCard .topbar");
-  if (quizTop && !document.getElementById("deadlineNoteQuiz")) {
-    const el2 = el.cloneNode(true);
-    el2.id = "deadlineNoteQuiz";
-    quizTop.insertAdjacentElement("afterend", el2);
-  }
-
-  // قفل الزر لو الوقت عدى
-  if (isClosedNow()){
+  function updateDeadlineState(){
     const btn = $("btnSubmit");
-    btn.disabled = true;
-    btn.textContent = "انتهى وقت استقبال الإجابات";
-    showMsg($("quizMsg"), false, "عذرًا، انتهى آخر موعد لاستقبال الإجابات.");
-  }
-}
+    const msgEl = $("quizMsg");
 
+    if (!btn) return;
+
+    if (isClosedNow()){
+      btn.disabled = true;
+      btn.textContent = "انتهى وقت استقبال الإجابات";
+      showMsg(msgEl, false, "عذرًا، انتهى آخر موعد لاستقبال الإجابات.");
+    } else {
+      // لو لسه مفتوح خلي الزر طبيعي (لو كان اتقفل قبل كده لأي سبب)
+      btn.disabled = false;
+      btn.textContent = "إرسال الإجابات";
+    }
+  }
 
   // "صح" = a ، "خطأ" = b
   const QUESTIONS = [
@@ -297,11 +283,21 @@ function applyDeadlineUI(){
     ], answer:"d"},
 
     // 5 صح/خطأ (من الصورة) ترتيب: صح/خطأ/صح/خطأ/صح
-    {id:"q16", text:"شهد النبي ﷺ حرب الفِجَار وهو شاب قبل البعثة.", choices:[{label:"صح", value:"a"},{label:"خطأ", value:"b"}], answer:"a"},
-    {id:"q17", text:"وُلِد النبي ﷺ في عام الفيل بعد حادثة الفيل بشهرين تقريبًا.", choices:[{label:"صح", value:"a"},{label:"خطأ", value:"b"}], answer:"b"},
-    {id:"q18", text:"استمر نزول الوحي على النبي ﷺ ثلاثًا وعشرين سنة.", choices:[{label:"صح", value:"a"},{label:"خطأ", value:"b"}], answer:"a"},
-    {id:"q19", text:"كانت أول هجرة في الإسلام إلى المدينة المنورة.", choices:[{label:"صح", value:"a"},{label:"خطأ", value:"b"}], answer:"b"},
-    {id:"q20", text:"كان صلح الحديبية في السنة السادسة للهجرة.", choices:[{label:"صح", value:"a"},{label:"خطأ", value:"b"}], answer:"a"},
+    {id:"q16", text:"شهد النبي ﷺ حرب الفِجَار وهو شاب قبل البعثة.", choices:[
+      {label:"صح", value:"a"},{label:"خطأ", value:"b"}
+    ], answer:"a"},
+    {id:"q17", text:"وُلِد النبي ﷺ في عام الفيل بعد حادثة الفيل بشهرين تقريبًا.", choices:[
+      {label:"صح", value:"a"},{label:"خطأ", value:"b"}
+    ], answer:"b"},
+    {id:"q18", text:"استمر نزول الوحي على النبي ﷺ ثلاثًا وعشرين سنة.", choices:[
+      {label:"صح", value:"a"},{label:"خطأ", value:"b"}
+    ], answer:"a"},
+    {id:"q19", text:"كانت أول هجرة في الإسلام إلى المدينة المنورة.", choices:[
+      {label:"صح", value:"a"},{label:"خطأ", value:"b"}
+    ], answer:"b"},
+    {id:"q20", text:"كان صلح الحديبية في السنة السادسة للهجرة.", choices:[
+      {label:"صح", value:"a"},{label:"خطأ", value:"b"}
+    ], answer:"a"},
   ];
 
   let SESSION = { civil_id:"", box_number:"", name:"", phone:"", status:"" };
@@ -401,60 +397,7 @@ function applyDeadlineUI(){
 
       div.appendChild(opts);
       container.appendChild(div);
-      container.appendChild(div);
     });
-
-    // ⚠️ إصلاح مهم: السطر اللي فوق كان اتكرر بالغلط عند بعض الناس أثناء النسخ.
-    // هنظبطه هنا بحيث مايبقاش فيه تكرار فعلي:
-    // (لو اتكرر، هنشيله بإعادة بناء الـ DOM بسرعة)
-    const all = container.querySelectorAll(".q");
-    if (all.length !== QUESTIONS.length) {
-      container.innerHTML = "";
-      QUESTIONS.forEach((q, idx) => {
-        const div = document.createElement("div");
-        div.className = "q";
-        div.setAttribute("data-qid", q.id);
-
-        const num = document.createElement("div");
-        num.className = "q-num";
-        num.textContent = String(idx + 1).padStart(2, "0");
-        div.appendChild(num);
-
-        const title = document.createElement("div");
-        title.className = "q-title";
-        title.textContent = `${idx+1}) ${q.text}`;
-        div.appendChild(title);
-
-        const opts = document.createElement("div");
-        opts.className = "opts";
-
-        q.choices.forEach(ch => {
-          const label = document.createElement("label");
-          label.className = "opt";
-
-          const input = document.createElement("input");
-          input.type = "radio";
-          input.name = q.id;
-          input.value = ch.value;
-
-          const text = document.createElement("div");
-          text.className = "txt";
-          text.textContent = ch.label;
-
-          const mark = document.createElement("div");
-          mark.className = "mark";
-          mark.textContent = "";
-
-          label.appendChild(input);
-          label.appendChild(text);
-          label.appendChild(mark);
-          opts.appendChild(label);
-        });
-
-        div.appendChild(opts);
-        container.appendChild(div);
-      });
-    }
 
     wireOptionSelectionUI();
   }
@@ -553,8 +496,7 @@ function applyDeadlineUI(){
       hide($("gateCard"));
       show($("quizCard"));
       renderQuestions();
-      applyDeadlineUI();
-
+      updateDeadlineState();
 
     }catch(e){
       showMsg($("gateMsg"), false, "تعذر الاتصال بالسيرفر.");
@@ -567,11 +509,12 @@ function applyDeadlineUI(){
   $("btnSubmit").addEventListener("click", async () => {
     const msgEl = $("quizMsg");
     msgEl.style.display = "none";
-    if (isClosedNow()){
-  showMsg(msgEl, false, "عذرًا، انتهى آخر موعد لاستقبال الإجابات.");
-  return;
-}
 
+    if (isClosedNow()){
+      showMsg(msgEl, false, "عذرًا، انتهى آخر موعد لاستقبال الإجابات.");
+      updateDeadlineState();
+      return;
+    }
 
     const got = collectAnswers();
     if (!got.ok){
@@ -606,8 +549,7 @@ function applyDeadlineUI(){
 
       if (!data.ok){
         showMsg(msgEl, false, data.message || "لم يتم الإرسال.");
-        $("btnSubmit").disabled = false;
-        $("btnSubmit").textContent = "إرسال الإجابات";
+        updateDeadlineState();
         return;
       }
 
@@ -617,8 +559,7 @@ function applyDeadlineUI(){
     }catch(e){
       showMsg(msgEl, false, "تعذر الاتصال بالسيرفر أثناء الإرسال.");
       console.error(e);
-      $("btnSubmit").disabled = false;
-      $("btnSubmit").textContent = "إرسال الإجابات";
+      updateDeadlineState();
     }
   });
 
@@ -626,7 +567,3 @@ function applyDeadlineUI(){
 </script>
 </body>
 </html>
-
-
-
-
