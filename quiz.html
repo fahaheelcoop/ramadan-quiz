@@ -64,22 +64,29 @@
     .opt.selected .mark{background:#6c63ff;border-color:#6c63ff;}
 
     .small{font-size:13px;color:#666;text-align:center;margin-top:10px}
-.deadline-box{
-  margin:12px 0 6px 0;
-  padding:12px 16px;
-  border-radius:12px;
-  background:linear-gradient(90deg,#fff8e1,#fff3cd);
-  border:1px solid #f0c36d;
-  font-weight:900;
-  font-size:15px;
+#deadlineLine{
+  display:block;
+  margin:10px 0 4px 0;
   text-align:center;
-  color:#8a4b00;
-  box-shadow:0 4px 12px rgba(0,0,0,.05);
+
+  /* أوضح + أغمق */
+  color:#111 !important;
+  font-weight:900 !important;
+  font-size:15px !important;
+
+  /* شكل لطيف */
+  background:#fff3cd;
+  border:1px solid #f0c36d;
+  padding:10px 14px;
+  border-radius:12px;
+  box-shadow:0 4px 12px rgba(0,0,0,.06);
 }
-.deadline-box span{
+
+#deadlineLine .date{
   color:#d84315;
   font-weight:900;
 }
+
 
     .kv{
       display:grid;grid-template-columns: 160px 1fr;gap:10px 14px;align-items:center;margin-top:14px;
@@ -150,7 +157,7 @@
   const PASS_PERCENT = 70;
   const QUIZ_ID = "RAMADAN_1447_2026_V2";
   // ✅ آخر موعد للإرسال (توقيت الكويت UTC+3)
-const DEADLINE_TS = Date.parse("2026-02-26T24:00:00+03:00"); // = 2026-02-27 00:00
+const DEADLINE_TS = Date.parse("2026-02-26T23:59:59+03:00"); // = 2026-02-27 00:00
 // بديل أوضح:
 // const DEADLINE_TS = Date.parse("2026-02-27T00:00:00+03:00");
 
@@ -614,5 +621,6 @@ function applyDeadlineUI(){
 </script>
 </body>
 </html>
+
 
 
