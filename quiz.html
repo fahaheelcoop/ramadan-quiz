@@ -119,13 +119,18 @@
 
     <div class="card hidden" id="quizCard">
       <div class="topbar">
-        <div class="pill" id="who"></div>
-        <div class="pill">نسبة النجاح: <span id="passPct">70</span>%</div>
-        <div class="pill">عدد الأسئلة: <span id="qCount">0</span></div>
-      </div>
+  <div class="pill" id="who"></div>
+  <div class="pill">نسبة النجاح: <span id="passPct">70</span>%</div>
+  <div class="pill">عدد الأسئلة: <span id="qCount">0</span></div>
+</div>
 
-      <div class="hr"></div>
-      <div id="questions"></div>
+<div id="deadlineLine">
+  آخر موعد لاستقبال الإجابات:
+  <span class="date">26 فبراير 2026 - 12:00 منتصف الليل</span>
+</div>
+
+<div class="hr"></div>
+<div id="questions"></div>
 
       <button id="btnSubmit">إرسال الإجابات</button>
       <div class="msg" id="quizMsg"></div>
@@ -621,6 +626,7 @@ function applyDeadlineUI(){
 </script>
 </body>
 </html>
+
 
 
 
