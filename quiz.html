@@ -162,6 +162,18 @@
     }
     .q.missing .q-title{ color:#b71c1c; }
 
+    /* ✅ قسم صح/خطأ */
+    .sectionTitle{
+      margin:14px 0 8px;
+      padding:10px 12px;
+      border:1px dashed #d8dcff;
+      border-radius:14px;
+      background:#f7f8ff;
+      color:#2c2a8a;
+      font-weight:900;
+      text-align:center;
+    }
+
     /* ✅ Shake */
     @keyframes shake {
       0%, 100% { transform: translateX(0); }
@@ -237,8 +249,12 @@
   const PASS_PERCENT = 70;
   const QUIZ_ID = "RAMADAN_1447_2026_V2";
 
-  // ✅ 15 سؤال MCQ — الإجابة الصحيحة بحرف الاختيار a/b/c/d
+  // ✅ 20 سؤال (15 MCQ + 5 صح/خطأ)
+  // ✅ "صح" = a ، "خطأ" = b
   const QUESTIONS = [
+    // =======================
+    // MCQ (1..15)
+    // =======================
     {
       id:"q1",
       text:"قوله تعالى: ﴿وَاتَّقُوا فِتْنَةً لَا تُصِيبَنَّ الَّذِينَ ظَلَمُوا مِنكُمْ خَاصَّةً﴾ يدل على:",
@@ -404,6 +420,56 @@
       ],
       answer:"d"
     },
+
+    // =======================
+    // صح/خطأ (16..20) — من الصورة (أول 5)
+    // ترتيب: صح / خطأ / صح / خطأ / صح
+    // =======================
+    {
+      id:"q16",
+      text:"شهد النبي ﷺ حرب الفِجَار وهو شاب قبل البعثة.",
+      choices:[
+        {label:"صح", value:"a"},
+        {label:"خطأ", value:"b"},
+      ],
+      answer:"a"
+    },
+    {
+      id:"q17",
+      text:"وُلِد النبي ﷺ في عام الفيل بعد حادثة الفيل بشهرين تقريبًا.",
+      choices:[
+        {label:"صح", value:"a"},
+        {label:"خطأ", value:"b"},
+      ],
+      answer:"b"
+    },
+    {
+      id:"q18",
+      text:"استمر نزول الوحي على النبي ﷺ ثلاثًا وعشرين سنة.",
+      choices:[
+        {label:"صح", value:"a"},
+        {label:"خطأ", value:"b"},
+      ],
+      answer:"a"
+    },
+  {
+      id:"q20",
+      text:"كان صلح الحديبية في السنة السادسة للهجرة.",
+      choices:[
+        {label:"صح", value:"a"},
+        {label:"خطأ", value:"b"},
+      ],
+      answer:"a"
+    },
+  {
+      id:"q19",
+      text:"كانت أول هجرة في الإسلام إلى المدينة المنورة.",
+      choices:[
+        {label:"صح", value:"a"},
+        {label:"خطأ", value:"b"},
+      ],
+      answer:"b"
+    },
   ];
 
   let SESSION = { civil_id:"", box_number:"", name:"", phone:"", status:"" };
@@ -455,13 +521,21 @@
   }
 
   function renderQuestions(){
-    $("qCount").textContent = QUESTIONS.length;
+    $("qCount").textContent = QUESTIONS.length; // ✅ 20
     $("passPct").textContent = PASS_PERCENT;
 
     const container = $("questions");
     container.innerHTML = "";
 
     QUESTIONS.forEach((q, idx) => {
+      // ✅ قبل أول سؤال صح/خطأ (q16) اعرض عنوان القسم
+      if (q.id === "q16") {
+        const sec = document.createElement("div");
+        sec.className = "sectionTitle";
+        sec.textContent = "قسم الصح والخطأ";
+        container.appendChild(sec);
+      }
+
       const div = document.createElement("div");
       div.className = "q";
       div.setAttribute("data-qid", q.id);
@@ -486,7 +560,7 @@
         const input = document.createElement("input");
         input.type = "radio";
         input.name = q.id;
-        input.value = ch.value; // ✅ نخزن a/b/c/d
+        input.value = ch.value; // a/b/c/d أو صح/خطأ (a/b)
 
         const text = document.createElement("div");
         text.className = "txt";
@@ -521,7 +595,7 @@
         missingIds.push(q.id);
         continue;
       }
-      answers[q.id] = chosen.value; // ✅ a/b/c/d
+      answers[q.id] = chosen.value;
     }
 
     if (missingIds.length){
@@ -540,7 +614,7 @@
     QUESTIONS.forEach(q => {
       if (String(answers[q.id]).toLowerCase() === String(q.answer).toLowerCase()) correct++;
     });
-    const total = QUESTIONS.length;
+    const total = QUESTIONS.length; // ✅ 20
     const percent = Math.round((correct / total) * 100);
     const passed = percent >= PASS_PERCENT;
     return { correct, total, percent, passed };
@@ -556,125 +630,4 @@
 
     hide($("gateCard"));
     hide($("quizCard"));
-    show($("approvedCard"));
-
-    $("approvedBtn").onclick = () => {
-      window.location.href = "register.html";
-    };
-  }
-
-  async function gate(){
-    const params = new URLSearchParams(window.location.search);
-    const civil = digits(params.get("civil_id") || "");
-    const box   = digits(params.get("box_number") || "");
-
-    if (!civil || !box){
-      showMsg($("gateMsg"), false, "لا يمكن فتح صفحة الأسئلة بدون التسجيل أولاً.");
-      show($("backBtn"));
-      $("backBtn").onclick = () => window.location.href = "register.html";
-      return;
-    }
-
-    try{
-      const data = await apiCall({ action:"checkAccess", civil_id: civil, box_number: box });
-
-      if (!data.ok && data.code === "ALREADY_SUBMITTED") {
-        SESSION.civil_id = civil;
-        SESSION.box_number = box;
-        SESSION.name = data.name || "";
-        SESSION.phone = data.phone || "";
-        SESSION.status = (data.status || "").trim();
-
-        // ✅ نفس الرسالة الثابتة بدون أي نتيجة
-        openApprovedView("✅ تم إرسال الإجابات بنجاح وتم اعتماد مشاركتك بالمسابقة. شكرًا لمشاركتك 🌟");
-        return;
-      }
-
-      if (!data.ok){
-        showMsg($("gateMsg"), false, data.message || "غير مسموح.");
-        show($("backBtn"));
-        $("backBtn").onclick = () => window.location.href =
-          `register.html?civil_id=${encodeURIComponent(civil)}&box_number=${encodeURIComponent(box)}`;
-        return;
-      }
-
-      SESSION.civil_id = civil;
-      SESSION.box_number = box;
-      SESSION.name = data.name || "";
-      SESSION.phone = data.phone || "";
-      SESSION.status = (data.status || "").trim();
-
-      $("who").textContent = SESSION.name ? `مرحبًا: ${SESSION.name}` : "مرحبًا بك";
-
-      hide($("gateCard"));
-      show($("quizCard"));
-      renderQuestions();
-
-    }catch(e){
-      showMsg($("gateMsg"), false, "تعذر الاتصال بالسيرفر.");
-      show($("backBtn"));
-      $("backBtn").onclick = () => window.location.href = "register.html";
-      console.error(e);
-    }
-  }
-
-  $("btnSubmit").addEventListener("click", async () => {
-    const msgEl = $("quizMsg");
-    msgEl.style.display = "none";
-
-    const got = collectAnswers();
-    if (!got.ok){
-      showMsg(msgEl, false, "من فضلك أجب على كل الأسئلة قبل الإرسال.");
-
-      const firstMissing = document.querySelector(`.q[data-qid="${got.missingIds[0]}"]`);
-      if (firstMissing) {
-        firstMissing.scrollIntoView({ behavior: "smooth", block: "center" });
-        setTimeout(() => shakeOnce(firstMissing, "shake"), 250);
-      }
-      shakeOnce(msgEl, "shakeMsg");
-      return;
-    }
-
-    const result = grade(got.answers); // ✅ نحسب فقط للإرسال للسيرفر (لن نعرضه)
-
-    $("btnSubmit").disabled = true;
-    $("btnSubmit").textContent = "جارٍ الإرسال...";
-
-    try{
-      const payload = {
-        action: "submitQuiz",
-        quiz_id: QUIZ_ID,
-        civil_id: SESSION.civil_id,
-        box_number: SESSION.box_number,
-        answers: got.answers,       // ✅ q1..q15 = a/b/c/d
-        score: result.correct,
-        total: result.total,
-        percent: result.percent
-      };
-
-      const data = await apiCall(payload);
-
-      if (!data.ok){
-        showMsg(msgEl, false, data.message || "لم يتم الإرسال.");
-        $("btnSubmit").disabled = false;
-        $("btnSubmit").textContent = "إرسال الإجابات";
-        return;
-      }
-
-      SESSION.status = (data.status || "").trim();
-
-      // ✅ رسالة ثابتة بدون أي أرقام/نتيجة
-      openApprovedView("✅ تم إرسال الإجابات بنجاح وتم اعتماد مشاركتك بالمسابقة. شكرًا لمشاركتك 🌟");
-
-    }catch(e){
-      showMsg(msgEl, false, "تعذر الاتصال بالسيرفر أثناء الإرسال.");
-      console.error(e);
-      $("btnSubmit").disabled = false;
-      $("btnSubmit").textContent = "إرسال الإجابات";
-    }
-  });
-
-  gate();
-</script>
-</body>
-</html>
+    show($(
