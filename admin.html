@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>لوحة تحكم المسابقة الثقافية</title>
+  <style>
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: Arial, sans-serif;
+      background:#f6f7fb;
+      color:#111;
+      padding:22px;
+    }
+    .wrap{max-width:1100px;margin:0 auto}
+    .card{
+      background:#fff;border-radius:16px;padding:18px 18px;
+      box-shadow:0 10px 30px rgba(0,0,0,.08);
+      margin-bottom:14px;
+    }
+    h1{margin:0 0 6px 0;font-size:22px}
+    .muted{color:#666;margin:0}
+
+    .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+    .grow{flex:1}
+    .field{
+      width:100%;
+      border:1px solid #e7e7f2;border-radius:12px;
+      padding:12px 12px;font-size:15px;
+      outline:none;background:#fff;
+    }
+    .field:focus{border-color:#6c63ff;box-shadow:0 0 0 4px rgba(108,99,255,.12)}
+    button{
+      border:0;border-radius:12px;
+      padding:12px 14px;
+      font-size:15px;font-weight:800;
+      cursor:pointer;
+      transition: all .2s ease;
+      white-space:nowrap;
+    }
+    .btnPrimary{background:#6c63ff;color:#fff}
+    .btnPrimary:hover{background:#5a54e6;transform:translateY(-1px);box-shadow:0 8px 18px rgba(0,0,0,.12)}
+    .btnGhost{background:#eef0ff;color:#3b37b8}
+    .btnGhost:hover{background:#e5e8ff}
+    .btnDanger{background:#ffebee;color:#b00020}
+    .btnDanger:hover{background:#ffd7dd}
+    button:disabled{opacity:.6;cursor:not-allowed;transform:none;box-shadow:none}
+
+    .msg{
+      margin-top:10px;
+      padding:12px 14px;border-radius:12px;
+      font-weight:800;
+      display:none;
+      text-align:center;
+    }
+    .ok{display:block;background:#e8fff1;color:#0a6b2b}
+    .err{display:block;background:#ffecec;color:#a30000}
+
+    .stats{
+      display:grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap:10px;
+      margin-top:10px;
+    }
+    @media (max-width: 980px){
+      .stats{grid-template-columns: repeat(2, minmax(0, 1fr));}
+    }
+    .stat{
+      border:1px solid #eee;border-radius:14px;
+      padding:12px;background:#fafafa;
+    }
+    .stat .k{color:#666;font-weight:800;font-size:13px}
+    .stat .v{font-weight:900;font-size:20px;margin-top:4px}
+
+    .toolbar{
+      display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:10px;
+    }
+    .hint{font-size:13px;color:#666;margin-top:8px}
+
+    table{width:100%;border-collapse:separate;border-spacing:0;margin-top:10px;overflow:hidden}
+    thead th{
+      text-align:right;
+      font-size:13px;
+      background:#f1f3ff;color:#3b37b8;
+      padding:10px;
+      border-top:1px solid #e6e8ff;
+      border-bottom:1px solid #e6e8ff;
+    }
+    tbody td{
+      padding:10px;
+      border-bottom:1px solid #f0f0f0;
+      font-size:13px;
+      vertical-align:top;
+    }
+    tbody tr:hover{background:#fafbff}
+    .tag{
+      display:inline-block;
+      padding:4px 10px;
+      border-radius:999px;
+      font-weight:900;
+      font-size:12px;
+      border:1px solid #e6e6e6;
+      background:#fff;
+    }
+    .passed{color:#0a7a2a;border-color:#cfead8;background:#e8fff1}
+    .failed{color:#b00020;border-color:#ffd0d8;background:#ffecef}
+    .registered{color:#8a6d00;border-color:#ffe8a1;background:#fff6d9}
+    .submitted{color:#0b6a75;border-color:#bfeff5;background:#e9fbfd}
+
+    .right{margin-right:auto}
+    .small{font-size:12px;color:#666}
+    .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;}
+  </style>
+</head>
+
+<body>
+<div class="wrap">
+
+  <!-- LOGIN -->
+  <div class="card" id="loginCard">
+    <h1>لوحة تحكم المسابقة الثقافية</h1>
+    <p class="muted">أدخل مفتاح الأدمن للدخول.</p>
+
+    <div class="row" style="margin-top:12px">
+      <div class="grow">
+        <input id="adminKey" class="field mono" placeholder="ADMIN KEY" autocomplete="off" />
+      </div>
+      <button id="btnLogin" class="btnPrimary">دخول</button>
+    </div>
+
+    <div class="row" style="margin-top:10px">
+      <label class="small">
+        <input type="checkbox" id="rememberKey" checked />
+        حفظ المفتاح على هذا الجهاز
+      </label>
+      <div class="right small">النسخة: <span class="mono" id="buildText">—</span></div>
+    </div>
+
+    <div class="msg" id="loginMsg"></div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="card" id="dashCard" style="display:none">
+    <div class="row">
+      <div>
+        <h1 style="margin:0">Dashboard</h1>
+        <div class="muted" style="margin-top:4px">إدارة ومتابعة المشاركين والنتائج.</div>
+      </div>
+      <div class="right row">
+        <button id="btnRefresh" class="btnGhost">تحديث</button>
+        <button id="btnLogout" class="btnDanger">تسجيل خروج</button>
+      </div>
+    </div>
+
+    <div class="stats" id="statsGrid">
+      <div class="stat"><div class="k">إجمالي السجلات</div><div class="v" id="stTotal">—</div></div>
+      <div class="stat"><div class="k">PASSED</div><div class="v" id="stPassed">—</div></div>
+      <div class="stat"><div class="k">FAILED</div><div class="v" id="stFailed">—</div></div>
+      <div class="stat"><div class="k">REGISTERED</div><div class="v" id="stRegistered">—</div></div>
+      <div class="stat"><div class="k">متوسط النسبة</div><div class="v" id="stAvg">—</div></div>
+    </div>
+
+    <div class="toolbar">
+      <div class="grow">
+        <input id="searchBox" class="field" placeholder="بحث بالاسم / الرقم المدني / الصندوق / الهاتف / الحالة..." />
+      </div>
+      <button id="btnSearch" class="btnPrimary">بحث</button>
+      <button id="btnClear" class="btnGhost">مسح</button>
+    </div>
+
+    <div class="hint">يعرض آخر 200 نتيجة (الأحدث أولًا) — ولو كتبت بحث، هيصفّي النتائج.</div>
+
+    <div class="msg" id="dashMsg"></div>
+
+    <div style="overflow:auto;margin-top:10px">
+      <table>
+        <thead>
+          <tr>
+            <th>الاسم</th>
+            <th>الرقم المدني</th>
+            <th>رقم الصندوق</th>
+            <th>الهاتف</th>
+            <th>الحالة</th>
+            <th>الدرجة</th>
+            <th>النسبة</th>
+            <th>وقت الإرسال</th>
+          </tr>
+        </thead>
+        <tbody id="rowsBody">
+          <tr><td colspan="8" class="muted" style="text-align:center;padding:16px">—</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // ✅ ضع هنا نفس رابط /exec بتاع السكربت
+  const API_URL = "https://script.google.com/macros/s/AKfycbwhdO_Ye6WivgCQyMTgEHrvNQOuEv6RJ9qBLCy-Vrhv_6BUhiCMV_m9kv82V3nYebk/exec";
+
+  const $ = (id) => document.getElementById(id);
+
+  function showMsg(el, ok, text){
+    el.className = "msg " + (ok ? "ok" : "err");
+    el.textContent = text;
+    el.style.display = "block";
+  }
+  function hideMsg(el){ el.style.display = "none"; }
+
+  async function apiCall(obj){
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(obj),
+    });
+    return await res.json();
+  }
+
+  function statusTag(st){
+    const s = String(st||"").trim().toUpperCase();
+    if (s === "PASSED") return `<span class="tag passed">PASSED</span>`;
+    if (s === "FAILED") return `<span class="tag failed">FAILED</span>`;
+    if (s === "REGISTERED") return `<span class="tag registered">REGISTERED</span>`;
+    if (s === "SUBMITTED") return `<span class="tag submitted">SUBMITTED</span>`;
+    return `<span class="tag">${escapeHtml(s)}</span>`;
+  }
+
+  function escapeHtml(s){
+    return String(s ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+  function setStats(data){
+    $("stTotal").textContent = data.total ?? "0";
+    $("stPassed").textContent = data.passed ?? "0";
+    $("stFailed").textContent = data.failed ?? "0";
+    $("stRegistered").textContent = data.registered ?? "0";
+    $("stAvg").textContent = (data.avgPercent ?? 0) + "%";
+  }
+
+  function renderRows(list){
+    const tb = $("rowsBody");
+    if (!list || !list.length){
+      tb.innerHTML = `<tr><td colspan="8" class="muted" style="text-align:center;padding:16px">لا توجد نتائج.</td></tr>`;
+      return;
+    }
+
+    tb.innerHTML = list.map(x => `
+      <tr>
+        <td>${escapeHtml(x.name || "")}</td>
+        <td class="mono">${escapeHtml(x.civil_id || "")}</td>
+        <td class="mono">${escapeHtml(x.box_number || "")}</td>
+        <td class="mono">${escapeHtml(x.phone || "")}</td>
+        <td>${statusTag(x.status)}</td>
+        <td class="mono">${escapeHtml(String(x.score ?? ""))}</td>
+        <td class="mono">${escapeHtml(String(x.percent ?? ""))}${x.percent!=="" && x.percent!=null ? "%" : ""}</td>
+        <td>${escapeHtml(String(x.submitted_at ?? ""))}</td>
+      </tr>
+    `).join("");
+  }
+
+  function getKey(){
+    return String(localStorage.getItem("quiz_admin_key") || "").trim();
+  }
+  function setKey(v){
+    localStorage.setItem("quiz_admin_key", String(v||"").trim());
+  }
+  function clearKey(){
+    localStorage.removeItem("quiz_admin_key");
+  }
+
+  async function loadStats(adminKey){
+    const data = await apiCall({ action:"adminStats", admin_key: adminKey });
+    if (!data.ok) throw new Error(data.message || data.code || "ADMIN_STATS_FAILED");
+    $("buildText").textContent = data.build || "—";
+    setStats(data.data || {});
+  }
+
+  async function loadList(adminKey, q){
+    const data = await apiCall({ action:"adminList", admin_key: adminKey, q: q || "" });
+    if (!data.ok) throw new Error(data.message || data.code || "ADMIN_LIST_FAILED");
+    $("buildText").textContent = data.build || "—";
+    renderRows(data.data || []);
+  }
+
+  async function refreshAll(){
+    hideMsg($("dashMsg"));
+    const adminKey = getKey();
+    const q = $("searchBox").value.trim();
+
+    $("btnRefresh").disabled = true;
+    $("btnSearch").disabled = true;
+
+    try{
+      await loadStats(adminKey);
+      await loadList(adminKey, q);
+    }catch(e){
+      showMsg($("dashMsg"), false, "تعذر تحميل البيانات: " + (e.message || e));
+    }finally{
+      $("btnRefresh").disabled = false;
+      $("btnSearch").disabled = false;
+    }
+  }
+
+  function openDash(){
+    $("loginCard").style.display = "none";
+    $("dashCard").style.display = "block";
+  }
+  function openLogin(){
+    $("dashCard").style.display = "none";
+    $("loginCard").style.display = "block";
+  }
+
+  // Login button
+  $("btnLogin").addEventListener("click", async () => {
+    hideMsg($("loginMsg"));
+    const key = $("adminKey").value.trim();
+    if (!key){
+      showMsg($("loginMsg"), false, "من فضلك اكتب ADMIN KEY.");
+      return;
+    }
+
+    $("btnLogin").disabled = true;
+
+    try{
+      // جرّب adminStats كمصادقة
+      const res = await apiCall({ action:"adminStats", admin_key: key });
+      if (!res.ok){
+        showMsg($("loginMsg"), false, res.message || "مفتاح غير صحيح.");
+        return;
+      }
+
+      $("buildText").textContent = res.build || "—";
+      if ($("rememberKey").checked) setKey(key);
+      else clearKey();
+
+      openDash();
+      // حمّل بقية الداتا
+      setStats(res.data || {});
+      await loadList(key, "");
+    }catch(e){
+      showMsg($("loginMsg"), false, "تعذر الاتصال بالسيرفر.");
+    }finally{
+      $("btnLogin").disabled = false;
+    }
+  });
+
+  $("btnLogout").addEventListener("click", () => {
+    clearKey();
+    $("adminKey").value = "";
+    $("searchBox").value = "";
+    renderRows([]);
+    openLogin();
+  });
+
+  $("btnRefresh").addEventListener("click", refreshAll);
+
+  $("btnSearch").addEventListener("click", refreshAll);
+
+  $("btnClear").addEventListener("click", async () => {
+    $("searchBox").value = "";
+    await refreshAll();
+  });
+
+  // Enter key triggers search
+  $("searchBox").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") refreshAll();
+  });
+
+  // Auto load if key saved
+  (async function init(){
+    const saved = getKey();
+    if (saved){
+      $("adminKey").value = saved;
+      try{
+        const res = await apiCall({ action:"adminStats", admin_key: saved });
+        if (res.ok){
+          $("buildText").textContent = res.build || "—";
+          openDash();
+          setStats(res.data || {});
+          await loadList(saved, "");
+          return;
+        }
+      }catch(_){}
+      // لو المفتاح محفوظ بس فشل، خلي المستخدم يدخل تاني
+      clearKey();
+    }
+    // إظهار build حتى في شاشة اللوجين لو تحب
+    try{
+      const ping = await apiCall({ action:"ping" });
+      $("buildText").textContent = ping.build || "—";
+    }catch(_){}
+  })();
+</script>
+</body>
+</html>
