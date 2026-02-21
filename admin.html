@@ -209,14 +209,47 @@
   }
   function hideMsg(el){ el.style.display = "none"; }
 
-  async function apiCall(obj){
-    const res = await fetch(API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify(obj),
-    });
-    return await res.json();
-  }
+  function apiCall(obj){
+  return new Promise((resolve, reject) => {
+    const cbName = "__cb_" + Date.now() + "_" + Math.floor(Math.random()*100000);
+
+    const params = new URLSearchParams();
+    Object.keys(obj || {}).forEach(k => params.append(k, obj[k]));
+    params.append("callback", cbName);
+
+    const url = API_URL + "?" + params.toString();
+
+    const script = document.createElement("script");
+    let done = false;
+
+    window[cbName] = (data) => {
+      done = true;
+      cleanup();
+      resolve(data);
+    };
+
+    const timer = setTimeout(() => {
+      if (done) return;
+      cleanup();
+      reject(new Error("TIMEOUT"));
+    }, 15000);
+
+    function cleanup(){
+      clearTimeout(timer);
+      try { delete window[cbName]; } catch(_){ window[cbName] = undefined; }
+      if (script && script.parentNode) script.parentNode.removeChild(script);
+    }
+
+    script.onerror = () => {
+      if (done) return;
+      cleanup();
+      reject(new Error("SCRIPT_ERROR"));
+    };
+
+    script.src = url;
+    document.body.appendChild(script);
+  });
+}
 
   function statusTag(st){
     const s = String(st||"").trim().toUpperCase();
