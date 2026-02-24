@@ -201,12 +201,12 @@
   const API_URL = "https://script.google.com/macros/s/AKfycbwhdO_Ye6WivgCQyMTgEHrvNQOuEv6RJ9qBLCy-Vrhv_6BUhiCMV_m9kv82V3nYebk/exec";
 
   const $ = (id) => document.getElementById(id);
-function cleanKey(s){
-  // يشيل أي مسافات/حروف خفية (RTL markers / zero-width)
-  return String(s || "")
-    .trim()
-    .replace(/[\u200E\u200F\u202A-\u202E\u2066-\u2069\u200B-\u200D\uFEFF]/g, "")
-    .replace(/\s+/g, "");
+function cleanKey(v){
+  // يشيل أي رموز RTL/LTR المخفية + أي مسافات/أسطر
+  return String(v || "")
+    .replace(/[\u200E\u200F\u202A-\u202E\u2066-\u2069]/g, "") // bidi marks
+    .replace(/\s+/g, "") // spaces/newlines/tabs
+    .trim();
 }
   function showMsg(el, ok, text){
     el.className = "msg " + (ok ? "ok" : "err");
@@ -304,14 +304,12 @@ function cleanKey(s){
     `).join("");
   }
 
-  function getKey(){
+function getKey(){
   return cleanKey(localStorage.getItem("quiz_admin_key"));
 }
-
 function setKey(v){
   localStorage.setItem("quiz_admin_key", cleanKey(v));
 }
-
 function clearKey(){
   localStorage.removeItem("quiz_admin_key");
 }
