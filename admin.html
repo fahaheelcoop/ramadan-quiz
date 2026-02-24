@@ -201,7 +201,13 @@
   const API_URL = "https://script.google.com/macros/s/AKfycbwhdO_Ye6WivgCQyMTgEHrvNQOuEv6RJ9qBLCy-Vrhv_6BUhiCMV_m9kv82V3nYebk/exec";
 
   const $ = (id) => document.getElementById(id);
-
+function cleanKey(s){
+  // يشيل أي مسافات/حروف خفية (RTL markers / zero-width)
+  return String(s || "")
+    .trim()
+    .replace(/[\u200E\u200F\u202A-\u202E\u2066-\u2069\u200B-\u200D\uFEFF]/g, "")
+    .replace(/\s+/g, "");
+}
   function showMsg(el, ok, text){
     el.className = "msg " + (ok ? "ok" : "err");
     el.textContent = text;
@@ -299,14 +305,16 @@
   }
 
   function getKey(){
-    return String(localStorage.getItem("quiz_admin_key") || "").trim();
-  }
-  function setKey(v){
-    localStorage.setItem("quiz_admin_key", String(v||"").trim());
-  }
-  function clearKey(){
-    localStorage.removeItem("quiz_admin_key");
-  }
+  return cleanKey(localStorage.getItem("quiz_admin_key"));
+}
+
+function setKey(v){
+  localStorage.setItem("quiz_admin_key", cleanKey(v));
+}
+
+function clearKey(){
+  localStorage.removeItem("quiz_admin_key");
+}
 
   async function loadStats(adminKey){
     const data = await apiCall({ action:"adminStats", admin_key: adminKey });
@@ -353,7 +361,7 @@
   // Login button
   $("btnLogin").addEventListener("click", async () => {
     hideMsg($("loginMsg"));
-    const key = $("adminKey").value.trim();
+    const key = cleanKey($("adminKey").value);
     if (!key){
       showMsg($("loginMsg"), false, "من فضلك اكتب ADMIN KEY.");
       return;
